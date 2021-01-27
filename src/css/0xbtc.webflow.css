@@ -97,8 +97,8 @@ body {
 }
 
 .bg-world {
-  padding-bottom: 2.5%;
-  background-image: url('../assets/images/0xworld.svg'), url('../assets/images/old_moon_2X.jpg');
+  padding-bottom: 0%;
+  background-image: url('../assets/images/0xworld.svg'), url('../assets/images/old_moon_4X.jpg');
   background-position: 75% 50%, 0px 0px;
   background-size: 650px, 400px;
   background-repeat: no-repeat, repeat;
@@ -165,7 +165,7 @@ body {
 }
 
 .navbar {
-  
+
   background-color: transparent;
   color: #fff;
 }

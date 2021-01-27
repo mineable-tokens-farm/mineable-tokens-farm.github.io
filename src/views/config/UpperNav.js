@@ -8,10 +8,7 @@ const config={
       {"title":"0xBTC Explorer","url":"https://0xbtc.info/"}
     ]},
     {"title":"EXCHANGES","rows":[
-      {"title":"Uniswap","url":"https://uniswap.exchange/swap"},
-      {"title":"0xChange","url":"https://dex.0xchange.org/#/erc20"},
-      {"title":"Forkdelta","url":"https://forkdelta.app/#!/trade/0xBTC-ETH"},
-      {"title":"Mercatox","url":"https://mercatox.com/exchange/0xBTC/ETH"}
+      {"title":"UniswapV2","url":"https://uniswap.exchange/swap"} 
     ]},
     {"title":"MINING POOLS","rows":[
       {"title":"Mike.rs Pool","url":"http://mike.rs/"},
@@ -24,11 +21,6 @@ const config={
       {"title":"Forums","url":"https://forums.0xbtc.io/"},
       {"title":"Github","url":"https://github.com/0xbitcoin"},
       {"title":"Gitter","url":"https://gitter.im/0xbtc-official/development"}
-    ]},
-    {"title":"DAPPS","rows":[
-      {"title":"0xBTC-Matic Bridge","url":"https://wallet.0xbtc.io"},
-      {"title":"ALIEN Yield Farm","url":"https://invader.finance"},
-      {"title":"Tipjar","url":"https://tipjar.0xbtc.io/"}
     ]}
   ]
 

@@ -8,30 +8,7 @@
        <Navbar />
      </div>
 
-     <div class="w-container">
-       <div class="hero-text w-row">
-         <div class="w-col w-col-6">
-           <h1 class="heading hidden lg:block">0xBitcoin</h1>
-           <div class="text-block-11 mt-20 lg:mt-0">PoW Mined ERC20 Currency</div>
-         </div>
-         <div class="w-col w-col-6">
-         </div>
-       </div>
-       <div class="div-block">
-         <a href="https://www.youtube.com/embed/lWMyal5r7bY" target="_blank" class="button1-base w-inline-block">
-           <div class="text-block-12">Community Video </div>
-         </a>
-         <a href="https://etherscan.io/address/0xb6ed7644c69416d67b522e20bc294a9a9b405b31#code" target="_blank" class="button1-base w-inline-block">
-           <div>Etherscan Contract Code</div>
-         </a>
-         <a href="https://github.com/EthereumCommonwealth/Auditing/issues/102" target="_blank" class="button1-base w-inline-block">
-           <div>Smart Contract Audit</div>
-         </a>
-         <a href="https://0xbtc.info/" target="_blank" class="button1-base w-inline-block">
-           <div>0xBTC Block Explorer</div>
-         </a>
-       </div>
-     </div>
+   
    </div>
 
    <div class="section autospacing">
