@@ -110,9 +110,16 @@ body {
   color: #fff;
 }
 
+
+.section.dark {
+  background-color: #393b4a;
+
+}
+
+
 .section.ctas {
   background-color: #393b4a;
-  background-image: url('../assets/images/old_moon_2X.jpg');
+  background-image: url('../assets/images/old_moon_4X.jpg');
   background-position: 0px 0px;
   background-size: 400px;
   background-attachment: scroll;
