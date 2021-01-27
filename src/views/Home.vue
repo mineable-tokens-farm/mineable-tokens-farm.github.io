@@ -15,8 +15,15 @@
      <div class="w-container pt-8">
 
         <ZapPanel />
-          aaaa
 
+        <div class="text-gray-100 p-8">
+          Since 0xBTC is a pure PoW Mineable Token, providing liquidity to the 0xBTC-ETH trading liquidity pool has special attributes and benefits.  As miners mint new 0xBTC from the contract, it costs a small amount of ETH for gas.
+          <br><br>
+          Naturally, for the miners to continue mining, some will swap 0xBTC back to ETH using a Decentralized Exchange like Uniswap.  By providing liquidity for this pair on Uniswap, you are indirectly earning some of the 0xBTC that is being mined while also helping reduce price slippage for the miners and other traders.
+          <br><br>
+          Farm.mineabletokens is a dapp that makes it very simple to provide liquidity to the 0xBTC-ETH pair on Uniswap to earn interest by accepting those fees.
+
+        </div>
 
      </div>
    </div>
@@ -29,9 +36,17 @@
        <div class="w-row">
          <div class="column w-col w-col-6  ">
 
+
+
             <h2 class="text-yellow-500"> 0xBTC-ETH Pool </h2>
+
+            <a href="https://0xbtc.info/" target="_blank" class='text-gray-200'>
+                 -> 0xBTC Mining Stats
+                </a>
+                <br>
+
            <a href="https://info.uniswap.org/pair/0xc12c4c3e0008b838f75189bfb39283467cf6e5b3" target="_blank" class='text-gray-200'>
-                View Uni Pool Statistics
+                -> Uni Pool Statistics
 
                </a>
 
