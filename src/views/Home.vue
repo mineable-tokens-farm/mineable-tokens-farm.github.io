@@ -38,7 +38,7 @@
 
 
 
-            <h2 class="text-yellow-500"> 0xBTC-ETH Pool </h2>
+            <h2 class="text-yellow-500"> 0xBTC-ETH Pair </h2>
 
             <a href="https://0xbtc.info/" target="_blank" class='text-gray-200'>
                  -> 0xBTC Mining Stats

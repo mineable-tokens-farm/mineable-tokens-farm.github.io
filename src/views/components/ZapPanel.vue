@@ -3,7 +3,7 @@
     <div class="bg-gray-800 p-8">
 
       <div>
-      <h3 class="text-lg font-bold inline">Wallet Balance </h3>
+      <h3 class="text-lg font-bold inline text-white">Yield Farm: 0xBTC-ETH Pair </h3>
 
       <div v-if="connectedToWeb3() == false" @click="connectWeb3()" class="button pull-right bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Connect to Web3</div>
 
@@ -22,34 +22,54 @@
 
       </div>
 
-      <div class="p-12 text-xl w-full text-center  text-glow text-green-500">
-        {{currentBalance}}
+
+
+      <div v-if="networkProviderIdError" class="p-8 bg-red-200">
+        {{networkProviderIdError}}
       </div>
 
-      <div>
-
-        <div v-if="networkProviderIdError" class="p-8 bg-red-200">
-          {{networkProviderIdError}}
-        </div>
 
 
 
 
-
-        <div  class="mb-48">
-
-          <div class="p-6 bg-gray-800  text-white w-full text-sm">
-
-          <input  type="text" v-model="zapInEthAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mr-4" size="8"/>
+      <div v-if="connectedToWeb3() " >
 
 
+          <div class="flex flex-row pt-8 text-white text-md"   >
 
-          <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
-            Deposit LP Token To Invader
-          </button>
+            <div class="p-4  w-full text-center  ">
+               ETH: {{currentBalances.eth}}
+            </div>
+
+            <div class="p-4  w-full text-center  ">
+               Deposited (Est. ETH Value): {{currentBalances.eth}}
+            </div>
+
+          </div>
 
 
-        </div>
+        <div  class="mb-12">
+
+          <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
+
+              <input  type="text" v-model="zapInEthAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
+
+              <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+               Deposit ETH
+              </button>
+
+           </div>
+
+
+           <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
+
+
+               <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+                Withdraw All To ETH
+               </button>
+
+
+            </div>
 
 
         </div>
@@ -61,9 +81,68 @@
 
 
 
+      </div>
+
+
+
+      <div v-if="connectedToWeb3() " >
+
+
+          <div class="flex flex-row pt-8 text-white text-md"   >
+
+            <div class="p-4  w-full text-center  ">
+               0xBTC: {{currentBalances.zxbtc}}
+            </div>
+
+            <div class="p-4  w-full text-center  ">
+               Deposited (Est. 0xBTC Value): {{currentBalances.zxbtc}}
+            </div>
+
+          </div>
+
+
+        <div  class="mb-12">
+
+          <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
+
+              <input  type="text" v-model="zapInEthAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
+
+              <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+               Deposit 0xBTC
+              </button>
+
+           </div>
+
+
+           <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
+
+
+               <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+                Withdraw All To 0xBTC
+               </button>
+
+
+            </div>
+
+
+        </div>
+
+        <div class="m-4">
+          <div v-if="txError">{{txError}}</div>
+
+        </div>
+
 
 
       </div>
+
+
+
+
+
+
+
+
     </div>
 </template>
 
@@ -85,7 +164,7 @@ export default {
 
 
 
-      currentBalance: 0,
+      currentBalances: {eth:0, zxbtc:0, lptoken:0 },
       zapInEthAmount: 0,
 
       txError: null,
