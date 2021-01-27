@@ -21,7 +21,12 @@
  font-weight: bold;
 }
 
+.pull-right
+{
+  float:right;
+}
 
+ 
 
 .origin-top-right {
   transform-origin: top right;

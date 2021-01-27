@@ -1,10 +1,29 @@
 
 <template>
-    <div class="">
-      <h3 class="text-lg font-bold">Wallet Balance </h3>
+    <div class="bg-gray-800 p-8">
+
+      <div>
+      <h3 class="text-lg font-bold inline">Wallet Balance </h3>
+
+      <div v-if="connectedToWeb3() == false" @click="connectWeb3()" class="button pull-right bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer">Connect to Web3</div>
+
+      <div v-if="connectedToWeb3() "   class="truncate text-white pull-right" style="max-width:250px;  ">
+
+
+        <div class="inline-block button   bg-gray-900 hover:bg-gray-700   font-bold py-0 px-1 rounded cursor-pointer">
+          <div class="text-green-500 text-xl inline  " style=" text-shadow: 0px 0px 2px #66dd00; ">  ·  </div>Mainnet
+        </div>
+
+        <span class="truncate" style="max-width:120px">
+        <a   v-bind:href="'https://etherscan.io/address/'+activeAccountAddress" class="text-green-500  "   target="_blank">  {{activeAccountAddress}} </a>
+       </span>
+       </div>
+
+
+      </div>
 
       <div class="p-12 text-xl w-full text-center  text-glow text-green-500">
-        {{currentBalance}} 
+        {{currentBalance}}
       </div>
 
       <div>
@@ -17,17 +36,15 @@
 
 
 
-        <div v-if="assetName=='0xBTC_LP_Token'" class="mb-48">
+        <div  class="mb-48">
 
           <div class="p-6 bg-gray-800  text-white w-full text-sm">
 
-          <input v-on:keyup="updateFormMode" type="text" v-model="depositAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mr-4" size="8"/>
+          <input  type="text" v-model="zapInEthAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mr-4" size="8"/>
 
-          <button @click="approveToInvader" v-if="!approvedEnoughToDeposit" class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
-            Approve LP Token To Invader
-          </button>
 
-          <button @click="depositToInvader" v-if="approvedEnoughToDeposit" class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+
+          <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
             Deposit LP Token To Invader
           </button>
 
@@ -54,6 +71,8 @@
 
 const Web3 = require('web3')
 
+
+
 import Web3Helper from '../../js/web3-helper.js'
 
 export default {
@@ -61,15 +80,23 @@ export default {
   props: [ ],
   data() {
     return {
+      activeAccountAddress: null,
+      providerNetworkID: null,
 
+
+
+      currentBalance: 0,
+      zapInEthAmount: 0,
 
       txError: null,
 
       networkProviderIdError: null
     }
   },
-  mounted()
+ async  mounted()
   {
+
+
  /*
     setTimeout(this.updateBalance, 2000);
 
@@ -101,9 +128,44 @@ export default {
        return CryptoAssets.assets[this.assetName]['Nickname'];
     },*/
 
+    async connectWeb3(){
+      console.log('connect')
+      if (window.ethereum) {
+           window.web3 = new Web3(window.ethereum);
+           window.ethereum.enable();
+
+           window.ethereum.on('accountsChanged', (accounts) => {
+                  this.refreshWeb3Accounts()
+            });
+
+          ethereum.on('chainChanged', (chainId) => {
+                  this.refreshWeb3Accounts()
+             });
+
+
+          this.refreshWeb3Accounts()
+
+
+         }
+    },
+
+  async  refreshWeb3Accounts(){
+      if ( window.ethereum.selectedAddress) {
+        this.providerNetworkID = await Web3Helper.getProviderNetworkID();
+        this.activeAccountAddress = window.ethereum.selectedAddress
+
+          console.log('this.activeAccountAddress ',this.activeAccountAddress )
+      }
+
+    },
+
+    connectedToWeb3(){
+
+      return  this.activeAccountAddress != null
+    },
+
 
     checkNetworkProviderIdValid(){
-
 
         if(this.providerNetworkID !=  1 )
         {
@@ -115,7 +177,7 @@ export default {
       //this.networkProviderIdError = null;
       return true;
     },
-    updateEstimatedEarnings()
+/*    updateEstimatedEarnings()
     {
 
       var stakedInvader = this.stakedInvader;
@@ -241,18 +303,17 @@ export default {
 
     },
 
-
-    async depositToInvader()
+*/
+    async zapInEth()
     {
-      console.log('deposit to invader')
-      this.networkProviderIdError=null;
+      console.log('zapInEth')
+  /*    this.networkProviderIdError=null;
 
 
       var web3 = window.web3
       var userAddress = this.acctAddress;
       var amt  = Web3Helper.formattedAmountToRaw(this.depositAmount, CryptoAssets.assets[this.assetName]['Decimals']);
 
-      //var tokenAddress = CryptoAssets.assets[this.assetName]['MaticContract']
 
       if(this.providerNetworkID != 0x89){
         this.networkProviderIdError = "Please switch your Web3 Provider to Matic Mainnet to call this method."
@@ -273,7 +334,7 @@ export default {
         console.log(receipt)
           // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
       });
-
+      */
 
     },
     async withdrawFromInvader()
