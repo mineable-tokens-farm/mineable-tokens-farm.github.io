@@ -5,8 +5,8 @@ const tokenContractABI = require('../contracts/ERC20ABI.json')
 const uniswapv2addabi = require('../contracts/uniswapv2add.json')
 const uniswapv2removeabi = require('../contracts/uniswapv2remove.json')
 
-const contractData = require('../contracts/Mainnet.json')
- 
+const contractData = require('../config/contractdata.json')
+
 const BigNumber = require('bignumber.js');
 
 const Web3 = require('web3');
@@ -72,40 +72,43 @@ var helper = {
 
     return tokenContract;
   },
-  async getInvaderContractAddress()
+  async getZapInContractAddress()
   {
 
-    var contractAddress = contractData.contracts.matic_network.InvaderToken.address;
+    var contractAddress = contractData.mainnet.contracts.uniswapv2add.address;
 
 
     return contractAddress;
   },
-  async getInvaderContract(web3)
+  async getZapInContract(web3)
   {
 
-    var contractAddress = await this.getInvaderContractAddress()
+    var contractAddress = await this.getZapInContractAddress()
 
-    var contract =  new web3.eth.Contract(invaderContractABI,contractAddress)
+    var contract =  new web3.eth.Contract(uniswapv2addabi,contractAddress)
 
     return contract;
   },
-  async getAlienContractAddress()
+  async getZapOutContractAddress()
   {
 
-    var contractAddress = contractData.contracts.matic_network.AlienToken.address;
+    var contractAddress = contractData.mainnet.contracts.uniswapv2remove.address;
 
 
     return contractAddress;
   },
-  async getAlienContract(web3)
+  async getZapOutContract(web3)
   {
 
-    var contractAddress = await this.getAlienContractAddress()
+    var contractAddress = await this.getZapOutContract()
 
-    var contract = new web3.eth.Contract(alienContractABI,contractAddress)
+    var contract = new web3.eth.Contract(uniswapv2removeabi,contractAddress)
 
     return contract;
   },
+
+
+
 
   async getTokensAllowance(tokenAddress, ownerAddress, spender )
   {
@@ -160,22 +163,7 @@ var helper = {
 
 
   },
-/*  async getTipjarTokensBalance( tokenAddress, ownerAddress)
-  {
-
-    var web3 = new Web3(Web3.givenProvider);
-
-
-    var contractAddress = contractData.contracts.matic_network.InvaderToken.address;
-
-
-    var tipjarContract = new web3.eth.Contract(invaderContractABI, contractAddress, {});
-
-
-    var balance = await tipjarContract.methods.getBalance(tokenAddress,ownerAddress).call();
-
-    return balance;
-  },*/
+ /*
 
   async getMaticTokensBalance(contractAddress, ownerAddress)
   {
@@ -217,7 +205,7 @@ var helper = {
     var balance = await alienContract.methods.getYieldAvailable(ownerAddress).call();
 
     return balance;
-  },
+  },*/
 
   rawAmountToFormatted(amount,decimals)
   {

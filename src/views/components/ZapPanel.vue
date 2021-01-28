@@ -54,7 +54,7 @@
 
               <input  type="text" v-model="zapInEthAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
 
-              <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+              <button v-on:click="zapInEth()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                Deposit ETH
               </button>
 
@@ -64,7 +64,7 @@
            <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
 
 
-               <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+               <button v-on:click="zapInEth()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                 Withdraw All To ETH
                </button>
 
@@ -107,7 +107,7 @@
 
               <input  type="text" v-model="zapInEthAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
 
-              <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+              <button v-on:click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                Deposit 0xBTC
               </button>
 
@@ -117,7 +117,7 @@
            <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
 
 
-               <button @click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+               <button v-on:click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                 Withdraw All To 0xBTC
                </button>
 
@@ -150,7 +150,7 @@
 
 const Web3 = require('web3')
 
-
+const CryptoAssets = require('../../config/cryptoassets.json')
 
 import Web3Helper from '../../js/web3-helper.js'
 
@@ -165,6 +165,8 @@ export default {
 
 
       currentBalances: {eth:0, zxbtc:0, lptoken:0 },
+
+
       zapInEthAmount: 0,
 
       txError: null,
@@ -191,13 +193,14 @@ export default {
     //this.updateAll();
   },
   methods: {
-    updateAll()
+
+  /*  updateAll()
     {
         console.log('form updated')
       // this.updateFormMode();
       // this.updateBalance();
     },
-  /*  currentDomainName(){
+    currentDomainName(){
       if(this.activeWalletDomain == "matic"){ return "Matic Network" }else{ return "Tip Jar" }
     },
     otherDomainName(){
@@ -383,15 +386,42 @@ export default {
     },
 
 */
+
+
+
+
     async zapInEth()
     {
-      console.log('zapInEth')
+
+
+      let assetName = 'ETH'
+
+      var userAddress = this.activeAccountAddress;
+      var amtRaw  = Web3Helper.formattedAmountToRaw(this.zapInEthAmount, CryptoAssets.assets[assetName]['Decimals']);
+
+      console.log('zap in eth!', userAddress, amtRaw)
+
+      var zapInContract = await Web3Helper.getZapInContract( window.web3 );
+
+      var tokenAddress =  "0x0000000000000000000000000000000000000000"
+      var marketPairAddress = "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"
+      var minPoolTokens = 0 //for now -- helps against front running
+      var allowanceTarget = userAddress
+      var swapTarget = userAddress
+      var swapData = "0x0"
+
+
+      zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, 0, minPoolTokens, allowanceTarget, swapTarget, swapData )
+      .send({from: userAddress, value: amtRaw })
+      .then(function(receipt){
+        console.log(receipt)
+          // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+      });
+
+
   /*    this.networkProviderIdError=null;
 
 
-      var web3 = window.web3
-      var userAddress = this.acctAddress;
-      var amt  = Web3Helper.formattedAmountToRaw(this.depositAmount, CryptoAssets.assets[this.assetName]['Decimals']);
 
 
       if(this.providerNetworkID != 0x89){

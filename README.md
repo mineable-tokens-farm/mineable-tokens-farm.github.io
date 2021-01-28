@@ -1,6 +1,14 @@
-# 0xBitcoin Tailwind-Vue Website
+# Mineable Tokens Farm
 
-Deployed at https://0xbitcoin.org
+Featuring Zapper.Fi technology
+
+
+
+### TODO
+Make deposit/withdraw work w zaps
+Show amount deposited (in eth and in 0xbtc)
+
+Show the user their amount of impermanent loss and help them realize when to unstake 
 
 
 
@@ -17,9 +25,3 @@ npm run dev
 npm run build
 npm run server
 ```
-
-### Editing the 0xBitcoin Wiki Documentation
-
-* Fork this project and edit the files inside of /public/documents  
-* Add new wiki documentation and when complete, issue a pull request
-* Syntax: https://markdown-it.github.io/
