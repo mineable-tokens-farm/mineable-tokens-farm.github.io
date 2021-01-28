@@ -410,12 +410,14 @@ export default {
       var tokenAddress =  "0x0000000000000000000000000000000000000000"
       var marketPairAddress = "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"
 
-      var allowanceTarget = wethContractAddress
-      var swapTarget = wethContractAddress
+
 
       //should this be 0.45 multiplier ??
       var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH', Math.floor(amtRaw * 0.45) );
       var swapData = swapQuote.data
+
+      var allowanceTarget = wethContractAddress
+      var swapTarget = swapQuote.to
 
       var minPoolTokens = Math.floor(swapQuote.buyAmount*0.95) //for now -- helps against front running
       let tokensAmount = swapQuote.buyAmount
