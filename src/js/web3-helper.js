@@ -9,6 +9,8 @@ const contractData = require('../config/contractdata.json')
 
 const BigNumber = require('bignumber.js');
 
+const axios = require('axios')
+
 const Web3 = require('web3');
 const web3utils = Web3.utils;
 //var max_target = web3utils.toBN( 2 ).pow( web3utils.toBN( 234 ) ) ;
@@ -107,7 +109,42 @@ var helper = {
     return contract;
   },
 
+  async get0xSwapQuote(  buyToken , sellToken , sellAmount) {
+    try {
+      const TIMEOUT = 30000;
+      const HEADERS = {
+        "Content-Type": "application/json;charset=utf-8",
+        Accept: "*/*",
+      };
+      const HOST = "https://api.0x.org";
 
+      const instance = axios.create({
+        baseURL: HOST,
+        timeout: TIMEOUT,
+        headers: HEADERS,
+      });
+
+      const response = await instance.get(
+        HOST +
+          "/swap/v1/quote?buyToken=" +
+          buyToken +
+          "&sellToken=" +
+          sellToken +
+          "&sellAmount=" +
+          sellAmount
+      );
+
+      const quote = response.data;
+      console.log(
+        `zapper.get0xSwapQuote(): Retrieved swap 0x quote for buyToken ${buyToken}, sellToken ${sellToken}, amount ${sellAmount}, quote ${JSON.stringify(quote)}`
+      );
+
+      return quote;
+    } catch (err) {
+      console.log(JSON.stringify(err));
+      throw err;
+    }
+  },
 
 
   async getTokensAllowance(tokenAddress, ownerAddress, spender )

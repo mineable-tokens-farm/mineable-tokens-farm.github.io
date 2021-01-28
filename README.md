@@ -14,6 +14,8 @@ Show the user their amount of impermanent loss and help them realize when to uns
 
 https://uniswap.org/docs/v2/smart-contracts/router01/#swapexactethfortokens
 
+Write a truffle test that deploys UniV2 and a token pair.. 
+
 ### Development commands
 ```
 npm install

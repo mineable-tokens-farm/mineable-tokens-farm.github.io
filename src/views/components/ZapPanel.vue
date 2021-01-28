@@ -405,16 +405,21 @@ export default {
       var zapInContract = await Web3Helper.getZapInContract( window.web3 );
 
       const wethContractAddress = "0x2956356cd2a2bf3202f771f50d3d14a367b48070"
-      const zxbtcContractAddress = "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"
+      const zxbtcContractAddress = "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
 
       var tokenAddress =  "0x0000000000000000000000000000000000000000"
       var marketPairAddress = "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"
-      var minPoolTokens = 0 //for now -- helps against front running
+
       var allowanceTarget = userAddress
       var swapTarget = userAddress
 
       //the swap path
-      var swapData = Web3.utils.hexToBytes( wethContractAddress  ).concat(  Web3.utils.hexToBytes( marketPairAddress  )  )
+      //var swapData = Web3.utils.hexToBytes( wethContractAddress  ).concat(  Web3.utils.hexToBytes( marketPairAddress  )  )
+
+      var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH', amtRaw   );
+      var swapData = swapQuote.data
+
+        var minPoolTokens = swapQuote.buyAmount //for now -- helps against front running
 
       zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, 0, minPoolTokens, allowanceTarget, swapTarget, swapData )
       .send({from: userAddress, value: amtRaw })
