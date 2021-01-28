@@ -16,6 +16,21 @@ https://uniswap.org/docs/v2/smart-contracts/router01/#swapexactethfortokens
 
 Write a truffle test that deploys UniV2 and a token pair..
 
+
+
+Deploy all this to KOVAN
+https://0x.org/docs/api#introduction
+
+## Kovan
+UniswapV2  https://kovan.etherscan.io/address/0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f#code
+
+0x api  https://kovan.api.0x.org/
+
+zapper 
+
+
+
+
 ### Development commands
 ```
 npm install
