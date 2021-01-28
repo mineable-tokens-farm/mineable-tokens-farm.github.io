@@ -150,6 +150,7 @@
 
 const Web3 = require('web3')
 
+
 const CryptoAssets = require('../../config/cryptoassets.json')
 
 import Web3Helper from '../../js/web3-helper.js'
@@ -403,13 +404,17 @@ export default {
 
       var zapInContract = await Web3Helper.getZapInContract( window.web3 );
 
+      const wethContractAddress = "0x2956356cd2a2bf3202f771f50d3d14a367b48070"
+      const zxbtcContractAddress = "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"
+
       var tokenAddress =  "0x0000000000000000000000000000000000000000"
       var marketPairAddress = "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"
       var minPoolTokens = 0 //for now -- helps against front running
       var allowanceTarget = userAddress
       var swapTarget = userAddress
-      var swapData = "0x0"
 
+      //the swap path
+      var swapData = Web3.utils.hexToBytes( wethContractAddress  ).concat(  Web3.utils.hexToBytes( marketPairAddress  )  )
 
       zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, 0, minPoolTokens, allowanceTarget, swapTarget, swapData )
       .send({from: userAddress, value: amtRaw })
