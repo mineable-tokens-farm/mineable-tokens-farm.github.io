@@ -502,11 +502,11 @@ export default {
           var allowanceTarget = swapQuote.to
           var swapTarget = swapQuote.to
 
-          var minPoolTokens = Math.floor(swapQuote.buyAmount*0.05) //for now -- helps against front running
-          let tokensAmount = 0//swapQuote.buyAmount
+          var minPoolTokens = 0 // for now -- helps against front running
+          let tokensAmount =  swapQuote.sellAmount
 
           zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, tokensAmount, minPoolTokens, allowanceTarget, swapTarget, swapData )
-          .send({from: userAddress, value: amtRaw })
+          .send({from: userAddress })
           .then(function(receipt){
             console.log(receipt)
               // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
@@ -563,7 +563,7 @@ export default {
       var tokenAddress =  Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoin"].address
       var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
 
-      var incomingLP = this.currentBalances.lpToken //all of them
+      var incomingLP =  this.currentBalances.lpToken //all of them
 
       var minTokensRecieved = 0 //for now ...
 

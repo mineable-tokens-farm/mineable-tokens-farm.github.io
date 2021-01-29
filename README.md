@@ -5,6 +5,9 @@ Featuring Zapper.Fi technology
 
 
 ### TODO
+** Add approvals for all the methods !! 
+
+
 Make deposit/withdraw work w zaps
 Show amount deposited (in eth and in 0xbtc)
 
@@ -26,7 +29,7 @@ UniswapV2  https://kovan.etherscan.io/address/0x5C69bEe701ef814a2B6a3EDD4B1652CB
 
 0x api  https://kovan.api.0x.org/
 
-zapper 
+zapper
 
 
 
