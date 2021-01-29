@@ -39,11 +39,11 @@
           <div class="flex flex-row pt-8 text-white text-md"   >
 
             <div class="p-4  w-full text-center  ">
-               ETH: {{currentBalances.eth}}
+               ETH: {{  rawAmountToFormatted(currentBalances.eth, cryptoAssets.assets['ETH']['Decimals'])  }}
             </div>
 
             <div class="p-4  w-full text-center  ">
-               Deposited (Est. ETH Value): {{currentBalances.eth}}
+               Deposited (Est. ETH Value): {{  rawAmountToFormatted(currentBalances.eth, cryptoAssets.assets['ETH']['Decimals'])  }}
             </div>
 
           </div>
@@ -92,11 +92,11 @@
           <div class="flex flex-row pt-8 text-white text-md"   >
 
             <div class="p-4  w-full text-center  ">
-               0xBTC: {{currentBalances.zxbtc}}
+               0xBTC: {{ rawAmountToFormatted(currentBalances.zxbtc, cryptoAssets.assets['0xBTC']['Decimals'])    }}
             </div>
 
             <div class="p-4  w-full text-center  ">
-               Deposited (Est. 0xBTC Value): {{currentBalances.zxbtc}}
+               Deposited (Est. 0xBTC Value): {{  rawAmountToFormatted(currentBalances.eth, cryptoAssets.assets['ETH']['Decimals'])  }}
             </div>
 
           </div>
@@ -151,7 +151,6 @@
 
 const Web3 = require('web3')
 
-
 const CryptoAssets = require('../../config/cryptoassets.json')
 
 import Web3NetButton from './Web3NetButton.vue'
@@ -167,7 +166,7 @@ export default {
       activeAccountAddress: null,
       providerNetworkID: null,
 
-
+      cryptoAssets: CryptoAssets,
 
       currentBalances: {eth:0, zxbtc:0, lptoken:0 },
 
@@ -198,6 +197,26 @@ export default {
     //this.updateAll();
   },
   methods: {
+
+
+   async refreshBalances(){
+
+      let contractData = Web3Helper.getContractDataForNetworkID(this.providerNetworkID)
+
+      let zcbtcTokenAddress = contractData["0xbitcoin"].address
+
+       this.currentBalances.eth = await Web3Helper.getETHBalance(this.activeAccountAddress)
+       this.currentBalances.zxbtc = await Web3Helper.getTokenBalance(zcbtcTokenAddress, this.activeAccountAddress)
+
+
+    },
+
+  rawAmountToFormatted(amount,decimals){
+
+    return Web3Helper.rawAmountToFormatted(amount, decimals)
+  },
+
+
 
   /*  updateAll()
     {
@@ -242,6 +261,8 @@ export default {
         this.activeAccountAddress = window.ethereum.selectedAddress
 
           console.log('this.activeAccountAddress ',this.activeAccountAddress )
+
+          this.refreshBalances()
       }
 
     },
@@ -405,7 +426,7 @@ export default {
 
     async zapInEth()
     {
-
+      let networkId = this.providerNetworkID
 
       let assetName = 'ETH'
 
@@ -414,18 +435,19 @@ export default {
 
       console.log('zap in eth!', userAddress, amtRaw)
 
-      var zapInContract = await Web3Helper.getZapInContract( window.web3 );
+      var zapInContract = await Web3Helper.getZapInContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
 
-      const wethContractAddress = "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-      const zxbtcContractAddress = "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
+      console.log('meep',Web3Helper.getContractDataForNetworkID(networkId))
+      const wethContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["weth"].address
+      const zxbtcContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
 
       var tokenAddress =  "0x0000000000000000000000000000000000000000"
-      var marketPairAddress = "0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"
+      var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
 
 
 
       //should this be 0.45 multiplier ??
-      var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH', Math.floor(amtRaw * 0.45) );
+      var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH', Math.floor(amtRaw * 0.45) , this.providerNetworkID);
       var swapData = swapQuote.data
 
       var allowanceTarget = wethContractAddress

@@ -46,14 +46,42 @@ var helper = {
 
   },
 
-  ethereumChainID()
+  mainnetChainID()
   {
-    return 0x1
+    return 1
   },
-  maticChainID()
+  kovanChainID()
   {
-    return 0x89
+    return 42
   },
+
+  getWeb3NetworkName(networkId){
+
+    if(networkId == this.mainnetChainID()){
+      return 'mainnet'
+    }
+
+    if(networkId == this.kovanChainID()){
+      return 'kovan'
+    }
+
+        console.error('Invalid network Id!')
+    return null
+  },
+
+
+  getContractDataForNetworkID(networkId){
+    let netName = this.getWeb3NetworkName(networkId)
+
+    if(netName){
+        return contractData[netName].contracts
+    }
+
+
+    return undefined
+
+  },
+
 
   async getConnectedAccounts()
   {
@@ -74,18 +102,18 @@ var helper = {
 
     return tokenContract;
   },
-  async getZapInContractAddress()
+  async getZapInContractAddress(web3NetworkName)
   {
 
-    var contractAddress = contractData.mainnet.contracts.uniswapv2add.address;
+    var contractAddress = contractData[web3NetworkName].contracts.uniswapv2add.address;
 
 
     return contractAddress;
   },
-  async getZapInContract(web3)
+  async getZapInContract(web3, web3NetworkName)
   {
 
-    var contractAddress = await this.getZapInContractAddress()
+    var contractAddress = await this.getZapInContractAddress(web3NetworkName)
 
     var contract =  new web3.eth.Contract(uniswapv2addabi,contractAddress)
 
@@ -109,14 +137,18 @@ var helper = {
     return contract;
   },
 
-  async get0xSwapQuote(  buyToken , sellToken , sellAmount) {
+  async get0xSwapQuote(  buyToken , sellToken , sellAmount, networkId) {
     try {
       const TIMEOUT = 30000;
       const HEADERS = {
         "Content-Type": "application/json;charset=utf-8",
         Accept: "*/*",
       };
-      const HOST = "https://api.0x.org";
+      var HOST = "https://api.0x.org";
+
+      if(networkId == 42){
+        HOST = "https://kovan.api.0x.org";
+      }
 
       const instance = axios.create({
         baseURL: HOST,
@@ -200,6 +232,28 @@ var helper = {
 
 
   },
+
+
+  async getETHBalance(ownerAddress)
+  {
+    var web3 = new Web3(Web3.givenProvider);
+
+    return web3.eth.getBalance(ownerAddress);
+  },
+
+  async getTokenBalance(contractAddress, ownerAddress)
+  {
+    var web3 = new Web3(Web3.givenProvider);
+
+    var tokenContract = new web3.eth.Contract(tokenContractABI, contractAddress, {});
+
+
+    var balance = await tokenContract.methods.balanceOf(ownerAddress).call();
+
+    return balance;
+  },
+
+
  /*
 
   async getMaticTokensBalance(contractAddress, ownerAddress)

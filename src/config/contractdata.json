@@ -3,7 +3,9 @@
     "contracts":{
       "0xbitcoin":{"address":"0xb6ed7644c69416d67b522e20bc294a9a9b405b31"},
       "uniswapv2add":{"address":"0x80C5e6908368CB9db503bA968d7ec5A565BFb389"},
-      "uniswapv2remove":{"address":"0x79B6C6F8634ea477ED725eC23b7b6Fcb41F00E58"}
+      "uniswapv2remove":{"address":"0x79B6C6F8634ea477ED725eC23b7b6Fcb41F00E58"},
+      "weth":{"address":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"},
+      "0xbitcoinmarketpair":{"address":"0xc12c4c3e0008b838f75189bfb39283467cf6e5b3"}
 
 
     }
@@ -14,7 +16,9 @@
     "contracts":{
       "0xbitcoin":{"address":"0x24a19ee5a5c8757acdebe542a9436d9c796d1c9e"},
       "uniswapv2add":{"address":"0xb491574844b84dcbaef821990df27122a178a283"},
-      "uniswapv2remove":{"address":"0x2224b38d659cc9eefcd7b05c3e9cf819f5a8c5f4"}
+      "uniswapv2remove":{"address":"0x2224b38d659cc9eefcd7b05c3e9cf819f5a8c5f4"},
+      "weth":{"address":"0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"},
+      "0xbitcoinmarketpair":{"address":"0x0638f19ea7748f4bc7d26898be8084b7e2905bf2"}
 
 
     }
