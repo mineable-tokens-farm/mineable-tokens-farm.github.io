@@ -108,7 +108,7 @@
 
               <input  type="text" v-model="zapInZXBTCAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
 
-              <button v-on:click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+              <button v-on:click="zapInToken"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                Deposit 0xBTC
               </button>
 
@@ -118,7 +118,7 @@
            <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
 
 
-               <button v-on:click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+               <button v-on:click="ZapOutToToken"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                 Withdraw All To 0xBTC
                </button>
 
@@ -473,6 +473,53 @@ export default {
     },
 
 
+
+      ///Need approval?
+        async zapInToken()
+        {
+          let networkId = this.providerNetworkID
+
+
+          var userAddress = this.activeAccountAddress;
+          var amtRaw  = Web3Helper.formattedAmountToRaw(this.zapInZXBTCAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+
+          console.log('zap in 0xBTC!', userAddress, amtRaw)
+
+          var zapInContract = await Web3Helper.getZapInContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
+
+           const wethContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["weth"].address
+          const zxbtcContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
+
+          var tokenAddress =  zxbtcContractAddress
+          var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
+
+
+
+          //should this be 0.45 multiplier ??
+          var swapQuote = await Web3Helper.get0xSwapQuote('ETH', zxbtcContractAddress,  amtRaw , this.providerNetworkID);
+          var swapData = swapQuote.data
+
+          var allowanceTarget = swapQuote.to
+          var swapTarget = swapQuote.to
+
+          var minPoolTokens = Math.floor(swapQuote.buyAmount*0.05) //for now -- helps against front running
+          let tokensAmount = 0//swapQuote.buyAmount
+
+          zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, tokensAmount, minPoolTokens, allowanceTarget, swapTarget, swapData )
+          .send({from: userAddress, value: amtRaw })
+          .then(function(receipt){
+            console.log(receipt)
+              // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+          });
+
+
+
+
+        },
+
+
+
+   ///Need approval?
     async ZapOutToEth( ){
 
       let networkId = this.providerNetworkID
@@ -502,162 +549,38 @@ export default {
 
     },
 
+      ///Need approval?
+    async ZapOutToToken( ){
 
-    async withdrawFromInvader()
-    {
+      let networkId = this.providerNetworkID
+      var userAddress = this.activeAccountAddress;
 
-      this.networkProviderIdError=null;
-
-      var web3 = window.web3
-      var userAddress = this.acctAddress;
-      var amt  = Web3Helper.formattedAmountToRaw(this.withdrawAmount, CryptoAssets.assets[this.assetName]['Decimals']);
-
-      var tokenAddress = CryptoAssets.assets[this.assetName]['MaticContract']
-
-      if(this.providerNetworkID != 0x89){
-        this.networkProviderIdError = "Please switch your Web3 Provider to Matic Mainnet to call this method."
-
-        return;
-
-      }
-
-      var contractAddress = CryptoAssets.assets[this.assetName]['MaticContract'];
+      var zapOutContract = await Web3Helper.getZapOutContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
 
 
-      var invaderContract = await Web3Helper.getInvaderContract(web3);
+        console.log('zapout' )
 
-      invaderContract.methods.withdrawTokens(amt).send({from: userAddress})
-      .then(function(receipt){
-          // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-      });
+      var tokenAddress =  Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoin"].address
+      var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
 
+      var incomingLP = this.currentBalances.lpToken //all of them
 
-    },
-    async approveInvaderToAlien()
-    {
+      var minTokensRecieved = 0 //for now ...
 
-      this.networkProviderIdError=null;
+      console.log('zapout',tokenAddress,marketPairAddress, incomingLP, minTokensRecieved)
 
-      var web3 = window.web3
-      var userAddress = this.acctAddress;
-      var amt  = Web3Helper.formattedAmountToRaw(this.stakeAmount, CryptoAssets.assets[this.assetName]['Decimals']);
-
-      var tokenAddress = CryptoAssets.assets[this.assetName]['MaticContract']
-
-      if(this.providerNetworkID != 0x89){
-        this.networkProviderIdError = "Please switch your Web3 Provider to Matic Mainnet to call this method."
-
-        return;
-
-      }
-
-      var invaderContract = await Web3Helper.getInvaderContract(web3);
-
-      var alienContractAddress = await Web3Helper.getAlienContractAddress()
-
-
-      invaderContract.methods.approve(alienContractAddress,amt).send({from: userAddress })
+      zapOutContract.methods.ZapOut(tokenAddress,marketPairAddress, incomingLP, minTokensRecieved  )
+      .send({from: userAddress })
       .then(function(receipt){
         console.log(receipt)
           // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
       });
 
 
-
     },
-    async stakeInvaderToAlien()
-    {
-
-      this.networkProviderIdError=null;
-
-      var web3 = window.web3
-      var userAddress = this.acctAddress;
-      var amt  = Web3Helper.formattedAmountToRaw(this.stakeAmount, CryptoAssets.assets[this.assetName]['Decimals']);
-
-
-      if(this.providerNetworkID != 0x89){
-        this.networkProviderIdError = "Please switch your Web3 Provider to Matic Mainnet to call this method."
-
-        return;
-
-      }
-
-      console.log('stake invader to alien ')
-
-
-      var alienContract = await Web3Helper.getAlienContract(web3)
-
-
-      alienContract.methods.stakeTokens(amt).send({from: userAddress })
-      .then(function(receipt){
-        console.log(receipt)
-          // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-      });
 
 
 
-
-    },
-    async unstakeInvaderFromAlien()
-    {
-
-
-      this.networkProviderIdError=null;
-
-      var web3 = window.web3
-      var userAddress = this.acctAddress;
-      var amt  = Web3Helper.formattedAmountToRaw(this.unstakeAmount, CryptoAssets.assets[this.assetName]['Decimals']);
-
-
-      if(this.providerNetworkID != 0x89){
-        this.networkProviderIdError = "Please switch your Web3 Provider to Matic Mainnet to call this method."
-
-        return;
-
-      }
-
-
-      var alienContract = await Web3Helper.getAlienContract(web3)
-
-
-      alienContract.methods.unstakeTokens(amt).send({from: userAddress })
-      .then(function(receipt){
-        console.log(receipt)
-          // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-      });
-
-
-
-    },
-    async mintAliens()
-    {
-
-
-      this.networkProviderIdError=null;
-
-      var web3 = window.web3
-      var userAddress = this.acctAddress;
-
-       if(this.providerNetworkID != 0x89){
-        this.networkProviderIdError = "Please switch your Web3 Provider to Matic Mainnet to call this method."
-
-        return;
-
-      }
-
-
-      var alienContract = await Web3Helper.getAlienContract(web3)
-
-
-      alienContract.methods.claimYields( ).send({from: userAddress })
-      .then(function(receipt){
-        console.log(receipt)
-          // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-      });
-
-
-
-    }
   }
 }
 
