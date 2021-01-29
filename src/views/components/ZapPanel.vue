@@ -10,12 +10,13 @@
       <div v-if="connectedToWeb3() "   class="truncate text-white pull-right" style="max-width:250px;  ">
 
 
-        <div class="inline-block button   bg-gray-900 hover:bg-gray-700   font-bold py-0 px-1 rounded cursor-pointer">
-          <div class="text-green-500 text-xl inline  " style=" text-shadow: 0px 0px 2px #66dd00; ">  ·  </div>Mainnet
-        </div>
+
+        <Web3NetButton
+           v-bind:providerNetworkID="providerNetworkID"
+         />
 
         <span class="truncate" style="max-width:120px">
-        <a   v-bind:href="'https://etherscan.io/address/'+activeAccountAddress" class="text-green-500  "   target="_blank">  {{activeAccountAddress}} </a>
+        <a   v-bind:href="getEtherscanBaseURL()+'/address/'+activeAccountAddress" class="text-green-500  "   target="_blank">  {{activeAccountAddress}} </a>
        </span>
        </div>
 
@@ -153,11 +154,14 @@ const Web3 = require('web3')
 
 const CryptoAssets = require('../../config/cryptoassets.json')
 
+import Web3NetButton from './Web3NetButton.vue'
+
 import Web3Helper from '../../js/web3-helper.js'
 
 export default {
   name: 'ZapPanel',
   props: [ ],
+  components:{Web3NetButton},
   data() {
     return {
       activeAccountAddress: null,
@@ -259,6 +263,14 @@ export default {
 
       //this.networkProviderIdError = null;
       return true;
+    },
+
+    getEtherscanBaseURL(){
+        if(this.providerNetworkID == 42){
+          return  'https://kovan.etherscan.io'
+        }
+
+        return 'https://etherscan.io'
     },
 /*    updateEstimatedEarnings()
     {
