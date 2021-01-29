@@ -53,7 +53,7 @@
 
           <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
 
-              <input  type="text" v-model="zapInEthAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
+              <input  type="text" v-model="zapInETHAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
 
               <button v-on:click="zapInEth()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                Deposit ETH
@@ -106,7 +106,7 @@
 
           <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
 
-              <input  type="text" v-model="zapInEthAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
+              <input  type="text" v-model="zapInZXBTCAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
 
               <button v-on:click="zapInEth"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                Deposit 0xBTC
@@ -171,7 +171,8 @@ export default {
       currentBalances: {eth:0, zxbtc:0, lptoken:0 },
 
 
-      zapInEthAmount: 0,
+      zapInETHAmount: 0,
+      zapInZXBTCAmount: 0,
 
       txError: null,
 
@@ -435,7 +436,7 @@ export default {
       let assetName = 'ETH'
 
       var userAddress = this.activeAccountAddress;
-      var amtRaw  = Web3Helper.formattedAmountToRaw(this.zapInEthAmount, CryptoAssets.assets[assetName]['Decimals']);
+      var amtRaw  = Web3Helper.formattedAmountToRaw(this.zapInETHAmount, CryptoAssets.assets[assetName]['Decimals']);
 
       console.log('zap in eth!', userAddress, amtRaw)
 
@@ -450,7 +451,7 @@ export default {
 
 
       //should this be 0.45 multiplier ??
-      var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH', Math.floor(amtRaw * 0.95) , this.providerNetworkID);
+      var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH',  amtRaw , this.providerNetworkID);
       var swapData = swapQuote.data
 
       var allowanceTarget = swapQuote.to
