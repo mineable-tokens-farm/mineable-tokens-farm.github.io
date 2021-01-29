@@ -119,18 +119,18 @@ var helper = {
 
     return contract;
   },
-  async getZapOutContractAddress()
+  async getZapOutContractAddress(web3NetworkName)
   {
 
-    var contractAddress = contractData.mainnet.contracts.uniswapv2remove.address;
+    var contractAddress = contractData[web3NetworkName].contracts.uniswapv2remove.address;
 
 
     return contractAddress;
   },
-  async getZapOutContract(web3)
+  async getZapOutContract(web3, web3NetworkName)
   {
 
-    var contractAddress = await this.getZapOutContract()
+    var contractAddress = await this.getZapOutContractAddress(web3NetworkName)
 
     var contract = new web3.eth.Contract(uniswapv2removeabi,contractAddress)
 

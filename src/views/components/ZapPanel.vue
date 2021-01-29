@@ -65,7 +65,7 @@
            <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
 
 
-               <button v-on:click="zapInEth()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+               <button v-on:click="ZapOutToEth()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
                 Withdraw All To ETH
                </button>
 
@@ -204,9 +204,13 @@ export default {
       let contractData = Web3Helper.getContractDataForNetworkID(this.providerNetworkID)
 
       let zcbtcTokenAddress = contractData["0xbitcoin"].address
+      let lpTokenAddress = contractData["0xbitcoinmarketpair"].address
 
        this.currentBalances.eth = await Web3Helper.getETHBalance(this.activeAccountAddress)
        this.currentBalances.zxbtc = await Web3Helper.getTokenBalance(zcbtcTokenAddress, this.activeAccountAddress)
+
+       this.currentBalances.lpToken = await Web3Helper.getTokenBalance(lpTokenAddress, this.activeAccountAddress)
+
 
 
     },
@@ -437,8 +441,7 @@ export default {
 
       var zapInContract = await Web3Helper.getZapInContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
 
-      console.log('meep',Web3Helper.getContractDataForNetworkID(networkId))
-      const wethContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["weth"].address
+       const wethContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["weth"].address
       const zxbtcContractAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoin"].address// "0xb6ed7644c69416d67b522e20bc294a9a9b405b31"
 
       var tokenAddress =  "0x0000000000000000000000000000000000000000"
@@ -447,14 +450,14 @@ export default {
 
 
       //should this be 0.45 multiplier ??
-      var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH', Math.floor(amtRaw * 0.45) , this.providerNetworkID);
+      var swapQuote = await Web3Helper.get0xSwapQuote(zxbtcContractAddress, 'ETH', Math.floor(amtRaw * 0.95) , this.providerNetworkID);
       var swapData = swapQuote.data
 
-      var allowanceTarget = wethContractAddress
+      var allowanceTarget = swapQuote.to
       var swapTarget = swapQuote.to
 
-      var minPoolTokens = Math.floor(swapQuote.buyAmount*0.95) //for now -- helps against front running
-      let tokensAmount = swapQuote.buyAmount
+      var minPoolTokens = Math.floor(swapQuote.buyAmount*0.05) //for now -- helps against front running
+      let tokensAmount = 0//swapQuote.buyAmount
 
       zapInContract.methods.ZapIn(tokenAddress,marketPairAddress, tokensAmount, minPoolTokens, allowanceTarget, swapTarget, swapData )
       .send({from: userAddress, value: amtRaw })
@@ -464,33 +467,41 @@ export default {
       });
 
 
-  /*    this.networkProviderIdError=null;
 
 
+    },
 
 
-      if(this.providerNetworkID != 0x89){
-        this.networkProviderIdError = "Please switch your Web3 Provider to Matic Mainnet to call this method."
+    async ZapOutToEth( ){
 
-        return;
+      let networkId = this.providerNetworkID
+      var userAddress = this.activeAccountAddress;
 
-      }
-
-      var contractAddress = CryptoAssets.assets[this.assetName]['MaticContract'];
+      var zapOutContract = await Web3Helper.getZapOutContract( window.web3, Web3Helper.getWeb3NetworkName( networkId ) );
 
 
-      var invaderContract = await Web3Helper.getInvaderContract(web3);
+        console.log('zapout' )
 
-      console.log(amt)
+      var tokenAddress =  "0x0000000000000000000000000000000000000000" //to receive ETh
+      var marketPairAddress = Web3Helper.getContractDataForNetworkID(networkId)["0xbitcoinmarketpair"].address
 
-      invaderContract.methods.depositTokens(amt).send({from: userAddress })
+      var incomingLP = this.currentBalances.lpToken //all of them
+
+      var minTokensRecieved = 0 //for now ...
+
+      console.log('zapout',tokenAddress,marketPairAddress, incomingLP, minTokensRecieved)
+
+      zapOutContract.methods.ZapOut(tokenAddress,marketPairAddress, incomingLP, minTokensRecieved  )
+      .send({from: userAddress })
       .then(function(receipt){
         console.log(receipt)
           // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
       });
-      */
+
 
     },
+
+
     async withdrawFromInvader()
     {
 
