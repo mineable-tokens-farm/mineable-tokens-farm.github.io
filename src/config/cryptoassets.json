@@ -5,6 +5,9 @@
     },
     "0xBTC":{
         "Decimals": 8
+    },
+    "LPToken":{
+        "Decimals": 18
     }
 
 

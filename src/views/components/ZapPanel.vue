@@ -62,10 +62,22 @@
            </div>
 
 
-           <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
+           <div class="p-6 bg-gray-800  text-white w-full text-sm flex flex-col ">
+
+               <div class="p-6 bg-gray-800  text-white w-full text-sm flex flex-row " v-if="!hasApprovalToZapOut()" >
+
+                     <div class="">
+                       <div> LP Tokens Approved: {{ zapOutLPTokensApproved  }}</div>
+                     </div>
+
+                     <button v-on:click="approveZapOutLPTokens()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+                      Approve LP Tokens To Withdraw
+                     </button>
 
 
-               <button v-on:click="ZapOutToEth()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+                </div>
+
+               <button v-on:click="ZapOutToEth()"   class="bg-gray-900 text-sm text-gray-800 hover:text-red-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2" :class="{'text-purple-500 hover:text-purple-400': hasApprovalToZapOut()  }">
                 Withdraw All To ETH
                </button>
 
@@ -104,21 +116,56 @@
 
         <div  class="mb-12">
 
-          <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
+          <div class="p-6 bg-gray-800  text-white w-full text-sm flex flex-col">
+
+
+            <div class="p-6 bg-gray-800  text-white w-full text-sm flex flex-row " v-if="!hasApprovalToZapInZXBTCTokens()">
+
+                  <div class="">
+                    <div> 0xBTC Approved: {{ zapInZXBTCApproved }}</div>
+                  </div>
+
+                  <button  v-on:click="approveZapInZXBTCTokens()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+                   Approve 0xBTC To Deposit
+                  </button>
+
+
+             </div>
+
+
+
+            <div class="p-6 bg-gray-800  text-white w-full text-sm flex flex-row " >
 
               <input  type="text" v-model="zapInZXBTCAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
 
-              <button v-on:click="zapInToken"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+              <button v-on:click="zapInToken"   class="bg-gray-900 text-sm text-gray-800  hover:text-red-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2" :class="{'text-purple-500 hover:text-purple-400': hasApprovalToZapInZXBTCTokens()  }">
                Deposit 0xBTC
-              </button>
+             </button>
 
            </div>
 
 
-           <div class="p-6 bg-gray-800  text-white w-full text-sm flex ">
+
+           </div>
 
 
-               <button v-on:click="ZapOutToToken"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+           <div class="p-6 bg-gray-800  text-white w-full text-sm flex flex-col ">
+
+             <div class="p-6 bg-gray-800  text-white w-full text-sm flex flex-row " v-if="!hasApprovalToZapOut()">
+
+                   <div class="">
+                     <div> LP Tokens Approved: {{ zapOutLPTokensApproved  }}</div>
+                   </div>
+
+                   <button  v-on:click="approveZapOutLPTokens()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+                    Approve LP Tokens To Withdraw
+                   </button>
+
+
+              </div>
+
+
+               <button v-on:click="ZapOutToToken"     class="bg-gray-900 text-sm text-gray-800 hover:text-red-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2" :class="{'text-purple-500 hover:text-purple-400': hasApprovalToZapOut()  }">
                 Withdraw All To 0xBTC
                </button>
 
@@ -174,6 +221,9 @@ export default {
       zapInETHAmount: 0,
       zapInZXBTCAmount: 0,
 
+      zapOutLPTokensApproved: 0,
+      zapInZXBTCApproved: 0,
+
       txError: null,
 
       networkProviderIdError: null
@@ -207,14 +257,29 @@ export default {
       let zcbtcTokenAddress = contractData["0xbitcoin"].address
       let lpTokenAddress = contractData["0xbitcoinmarketpair"].address
 
+      let zapInContractAddress = contractData["uniswapv2add"].address
+      let zapOutContractAddress = contractData["uniswapv2remove"].address
+
        this.currentBalances.eth = await Web3Helper.getETHBalance(this.activeAccountAddress)
        this.currentBalances.zxbtc = await Web3Helper.getTokenBalance(zcbtcTokenAddress, this.activeAccountAddress)
 
        this.currentBalances.lpToken = await Web3Helper.getTokenBalance(lpTokenAddress, this.activeAccountAddress)
 
+       this.zapOutLPTokensApproved= await Web3Helper.getTokensAllowance(lpTokenAddress,  this.activeAccountAddress, zapOutContractAddress)
+       this.zapInZXBTCApproved=  await Web3Helper.getTokensAllowance(zcbtcTokenAddress,  this.activeAccountAddress, zapInContractAddress)
 
 
     },
+
+
+  async recalculateDepositedEthFromLPTokens(){
+      // this.currentBalances.lpToken
+  },
+
+  async recalculateDepositedZXBTCFromLPTokens(){
+
+  },
+
 
   rawAmountToFormatted(amount,decimals){
 
@@ -298,136 +363,79 @@ export default {
 
         return 'https://etherscan.io'
     },
-/*    updateEstimatedEarnings()
-    {
-
-      var stakedInvader = this.stakedInvader;
-      var blockTime = 2000; //ms
-      var tickTime = 100;  //ms
-
-      var tokensEarnedPerBlock = stakedInvader / 1000000.0;
-
-      var tokensEarnedPerTick = (tokensEarnedPerBlock * (tickTime/blockTime))
-
-      console.log('meep1', tokensEarnedPerTick, this.estimatedYield)
-
-      this.estimatedYield = (parseFloat(parseFloat(this.estimatedYield) + parseFloat(tokensEarnedPerTick))).toFixed(8);
-
-      console.log('meep2', tokensEarnedPerTick, this.estimatedYield )
 
 
 
-    },
-    async updateBalance()
-    {
+    hasApprovalToZapOut(){
 
-
-
-      if(this.activeWalletDomain == "matic"){
-        var web3provider = new Web3(Web3.givenProvider || 'ws://localhost:8546');
-        var userAddress = this.acctAddress;
-
-         var balanceRaw = await Web3Helper.getMaticTokensBalance(
-          CryptoAssets.assets[this.assetName]['MaticContract'],
-          userAddress
-        )
-        this.currentBalance =  Web3Helper.rawAmountToFormatted(balanceRaw, CryptoAssets.assets[this.assetName]['Decimals']);
-
-
-
-          var stakedInvaderRaw =  await Web3Helper.getStakedInvaderBalance(userAddress)
-          console.log('staked invader raw',stakedInvaderRaw)
-          this.stakedInvader =  Web3Helper.rawAmountToFormatted(stakedInvaderRaw, CryptoAssets.assets['InvaderToken']['Decimals']);
-
-          var yieldAvailableRaw =  await Web3Helper.getYieldAvailable(userAddress)
-          this.yieldAvailable =  Web3Helper.rawAmountToFormatted(yieldAvailableRaw, CryptoAssets.assets['AlienToken']['Decimals']);
-          this.estimatedYield = parseFloat(this.yieldAvailable).toFixed(8);
-
-
-      }
-
-    },
-    async updateFormMode()
-    {
-      console.log('updateFormMode');
-
-
-
-
-        if(this.assetName == "0xBTC_LP_Token"){
-          //check to see how many are approved to invader
-          console.log('has enough allowance?', this.acctAddress,this.assetName,this.depositAmount)
-
-          var spenderAddress = await Web3Helper.getInvaderContractAddress();
-
-          var amt = this.depositAmount;
-
-          var hasAllowance = await Web3Helper.hasEnoughAllowance(this.acctAddress,spenderAddress,this.assetName,amt)
-
-          this.approvedEnoughToDeposit = hasAllowance;
-        }
-
-
-
-        if(this.assetName == "InvaderToken"){
-          //check to see how many are approved to alien
-          console.log('has enough allowance?', this.acctAddress,this.assetName,this.stakeAmount)
-
-          var spenderAddress = await Web3Helper.getAlienContractAddress();
-
-          var amt = this.stakeAmount;
-
-          var hasAllowance = await Web3Helper.hasEnoughAllowance(this.acctAddress,spenderAddress,this.assetName,amt)
-
-          this.approvedEnoughToDeposit = hasAllowance;
-        }
-
-
-
-
-      //  this.checkNetworkProviderIdValid()
-
-
+      return this.zapOutLPTokensApproved > 0
     },
 
-    async approveToInvader()
-    {
-      console.log('approve to invader')
-      this.networkProviderIdError=null;
-
-
-      var web3 = window.web3
-      var userAddress = this.acctAddress;
-      var amt  = Web3Helper.formattedAmountToRaw(this.depositAmount, CryptoAssets.assets[this.assetName]['Decimals']);
-
-      var tokenAddress = CryptoAssets.assets[this.assetName]['MaticContract']
-
-      if(this.providerNetworkID != 0x89){
-        this.networkProviderIdError = "Please switch your Web3 Provider to Matic Mainnet to call this method."
-
-        return;
-
-      }
-
-      var invaderContractAddress = await Web3Helper.getInvaderContractAddress();
-
-      var tokenContract = await Web3Helper.getTokenContract(web3,tokenAddress,userAddress)
-
-      console.log(invaderContractAddress,amt)
-
-      tokenContract.methods.approve(invaderContractAddress,amt).send({from: userAddress })
-      .then(function(receipt){
-        console.log(receipt)
-          // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-      });
-
-
+    hasApprovalToZapInZXBTCTokens(){
+        return this.zapInZXBTCApproved > 0
     },
 
-*/
+
+       async approveZapInZXBTCTokens(){
+
+         let networkId = this.providerNetworkID
+
+         var userAddress = this.activeAccountAddress;
+
+         const UnlimitedAmount = 100000000
+         var amtRaw  = Web3Helper.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['0xBTC']['Decimals']);
+
+         let contractData =  Web3Helper.getContractDataForNetworkID(networkId)
+
+         let tokenAddress = contractData["0xbitcoin"].address
+
+         var tokenContract = await Web3Helper.getTokenContract(web3,tokenAddress)
+
+         var zapInContractAddress = contractData["uniswapv2add"].address
+
+         tokenContract.methods.approve(zapInContractAddress,amtRaw).send({from: userAddress })
+         .then(function(receipt){
+           console.log(receipt)
+
+           this.refreshWeb3Accounts()
+             // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+         }.bind(this));
 
 
 
+
+       },
+
+
+   async approveZapOutLPTokens(){
+
+     let networkId = this.providerNetworkID
+
+     var userAddress = this.activeAccountAddress;
+
+     const UnlimitedAmount = 100000000000000
+     var amtRaw  = Web3Helper.formattedAmountToRaw(UnlimitedAmount, CryptoAssets.assets['LPToken']['Decimals']);
+
+     let contractData =  Web3Helper.getContractDataForNetworkID(networkId)
+
+     let tokenAddress = contractData["0xbitcoinmarketpair"].address
+
+     var tokenContract = await Web3Helper.getTokenContract(web3,tokenAddress)
+
+     var zapOutContractAddress = contractData["uniswapv2remove"].address
+
+     tokenContract.methods.approve(zapOutContractAddress,amtRaw).send({from: userAddress })
+     .then(function(receipt){
+       console.log(receipt)
+
+       this.refreshWeb3Accounts()
+         // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+     }.bind(this));
+
+
+
+
+   },
 
     async zapInEth()
     {
@@ -509,8 +517,9 @@ export default {
           .send({from: userAddress })
           .then(function(receipt){
             console.log(receipt)
+            this.refreshWeb3Accounts()
               // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-          });
+          }.bind(this));
 
 
 
@@ -543,8 +552,9 @@ export default {
       .send({from: userAddress })
       .then(function(receipt){
         console.log(receipt)
+        this.refreshWeb3Accounts()
           // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-      });
+      }.bind(this));
 
 
     },
@@ -573,8 +583,10 @@ export default {
       .send({from: userAddress })
       .then(function(receipt){
         console.log(receipt)
+
+        this.refreshWeb3Accounts()
           // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-      });
+      }.bind(this));
 
 
     },
