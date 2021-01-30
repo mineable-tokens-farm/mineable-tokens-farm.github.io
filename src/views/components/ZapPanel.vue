@@ -42,7 +42,12 @@
                ETH: {{  rawAmountToFormatted(currentBalances.eth, cryptoAssets.assets['ETH']['Decimals'])  }}
             </div>
 
-            <div class="p-4  w-full text-center  ">
+            <div class="p-4  w-full text-center relative ">
+
+              <div class="absolute" style="right: 25px; top:-5px" v-if="currentBalances.calcEthFromLP > 0">
+                <YieldFarmingLabel />
+              </div>
+
                Deposited (Est. ETH Value): {{  rawAmountToFormatted(currentBalances.calcEthFromLP, cryptoAssets.assets['ETH']['Decimals'])  }}
             </div>
 
@@ -107,7 +112,13 @@
                0xBTC: {{ rawAmountToFormatted(currentBalances.zxbtc, cryptoAssets.assets['0xBTC']['Decimals'])    }}
             </div>
 
-            <div class="p-4  w-full text-center  ">
+            <div class="p-4  w-full text-center relative " >
+
+                <div class="absolute" style="right: 25px; top:-5px" v-if="currentBalances.calcZxbtcFromLP > 0">
+                <YieldFarmingLabel />
+              </div>
+
+
                Deposited (Est. 0xBTC Value): {{  rawAmountToFormatted(currentBalances.calcZxbtcFromLP, cryptoAssets.assets['0xBTC']['Decimals'])  }}
             </div>
 
@@ -198,16 +209,20 @@
 
 const Web3 = require('web3')
 
+var BN = Web3.utils.BN;
+
+
 const CryptoAssets = require('../../config/cryptoassets.json')
 
 import Web3NetButton from './Web3NetButton.vue'
+import YieldFarmingLabel from './YieldFarmingLabel.vue'
 
 import Web3Helper from '../../js/web3-helper.js'
 
 export default {
   name: 'ZapPanel',
   props: [ ],
-  components:{Web3NetButton},
+  components:{Web3NetButton,YieldFarmingLabel},
   data() {
     return {
       activeAccountAddress: null,
@@ -232,9 +247,9 @@ export default {
  async  mounted()
   {
 
-
+    setTimeout(this.refreshBalances, 6000);
  /*
-    setTimeout(this.updateBalance, 2000);
+
 
     setInterval(this.updateBalance, 10000);
 
@@ -268,33 +283,71 @@ export default {
        this.zapOutLPTokensApproved= await Web3Helper.getTokensAllowance(lpTokenAddress,  this.activeAccountAddress, zapOutContractAddress)
        this.zapInZXBTCApproved=  await Web3Helper.getTokensAllowance(zcbtcTokenAddress,  this.activeAccountAddress, zapInContractAddress)
 
-       this.recalculateDepositedEthFromLPTokens()
-       this.recalculateDepositedZXBTCFromLPTokens()
+       let zapOutEstimate = await this.estimateZapOutAmountFromLPTokens()
+
+       this.currentBalances.calcZxbtcFromLP = zapOutEstimate[0]
+       this.currentBalances.calcEthFromLP = zapOutEstimate[1]
+
     },
 
 
-  async recalculateDepositedEthFromLPTokens(){
-      // this.currentBalances.lpToken
+  async estimateZapOutAmountFromLPTokens(){
+         let myLpTokenBalance =  this.currentBalances.lpToken
 
-       let networkId = this.providerNetworkID
+         let networkId = this.providerNetworkID
 
          let contractData =  Web3Helper.getContractDataForNetworkID(networkId)
          let uniswapPairContractAddress = contractData["0xbitcoinmarketpair"].address
+         let uniswapRouterContractAddress = contractData["uniswapv2router"].address
 
+         let uniswapRouterContract = await Web3Helper.getUniswapRouterContract( window.web3, uniswapRouterContractAddress )
          let uniswapPairContract = await Web3Helper.getUniswapPairContract( window.web3, uniswapPairContractAddress )
 
-         console.log('meep12', uniswapPairContract)
 
-         let priceEstimate = await Web3Helper.getMarketPairPriceEstimate(uniswapPairContract, 0)
+         let totalLpTokenSupply =  await Web3Helper.getTotalLPTokenSupply(uniswapPairContract)
 
-         console.log("priceEstimate" , priceEstimate  )
+        /// let priceEstimate = await Web3Helper.getMarketPairPriceEstimate(uniswapPairContract)
+         let pairReserves  = await Web3Helper.getMarketPairReserves(uniswapPairContract)
 
+
+
+         console.log("pairReserves ",  pairReserves  )
+
+
+
+         let myLpTokenFraction =  (myLpTokenBalance / totalLpTokenSupply)
+
+      //   let priceRatioEstimated = Web3Helper.rawAmountToFormatted(priceEstimate[0], 18) / Web3Helper.rawAmountToFormatted(priceEstimate[1], 8)
+
+
+         let myPooledZXBTCTokenShare = Math.floor( myLpTokenFraction *  pairReserves[0] )
+         let myPooledEthShare = Math.floor( myLpTokenFraction *  pairReserves[1] )
+
+           console.log("myPooledZXBTCTokenShare", myPooledZXBTCTokenShare)
+             console.log("myPooledEthShare", myPooledEthShare)
+
+             if(myLpTokenFraction <= 0.0000000001){
+                 return [0 , 0]
+             }
+
+         let myPooledEthShareInTermsOfZXBTC = await Web3Helper.getUniSwapEstimate(uniswapRouterContract, myPooledEthShare.toString(), pairReserves[1], pairReserves[0] )
+         let myPooledZXBTCShareInTermsOfETH = await Web3Helper.getUniSwapEstimate(uniswapRouterContract, myPooledZXBTCTokenShare.toString(), pairReserves[0], pairReserves[1] )
+
+            console.log("myPooledEthShareInTermsOfZXBTC", myPooledEthShareInTermsOfZXBTC)
+
+            console.log("myPooledZXBTCShareInTermsOfETH",  myPooledZXBTCShareInTermsOfETH)
+
+          let myTotalZapoutZXBTCEstimate = parseInt(myPooledZXBTCTokenShare) + parseInt(myPooledEthShareInTermsOfZXBTC)
+          let myTotalZapoutEthEstimate = parseInt(myPooledEthShare) + parseInt(myPooledZXBTCShareInTermsOfETH)
+
+          console.log("myTotalZapoutZXBTCEstimate", myTotalZapoutZXBTCEstimate )
+          console.log("myTotalZapoutEthEstimate", myTotalZapoutEthEstimate )
+
+
+          return [myTotalZapoutZXBTCEstimate , myTotalZapoutEthEstimate]
 
   },
 
-  async recalculateDepositedZXBTCFromLPTokens(){
-
-  },
 
 
   rawAmountToFormatted(amount,decimals){
@@ -497,8 +550,9 @@ export default {
       .send({from: userAddress, value: amtRaw })
       .then(function(receipt){
         console.log(receipt)
+        this.refreshWeb3Accounts()
           // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
-      });
+      }.bind(this));
 
 
 

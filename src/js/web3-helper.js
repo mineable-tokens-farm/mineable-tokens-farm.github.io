@@ -2,6 +2,7 @@
 
 //https://docs.metamask.io/guide/ethereum-provider.html#using-the-provider
 const tokenContractABI = require('../contracts/ERC20ABI.json')
+const uniswapRouterContractABI = require('../contracts/UniswapV2Router.json')
 const uniswapPairContractABI = require('../contracts/UniPairABI.json')
 const uniswapv2addabi = require('../contracts/uniswapv2add.json')
 const uniswapv2removeabi = require('../contracts/uniswapv2remove.json')
@@ -138,6 +139,14 @@ var helper = {
     return contract;
   },
 
+    async getUniswapRouterContract(web3, contractAddress)
+    {
+
+      var pairContract = new web3.eth.Contract(uniswapRouterContractABI,contractAddress)
+
+      return pairContract;
+    },
+
   async getUniswapPairContract(web3, contractAddress)
   {
 
@@ -188,14 +197,14 @@ var helper = {
   },
 
 
-  async getMarketPairPriceEstimate(pairContract, pairId){
+  async getMarketPairPriceEstimate(pairContract){
 
+    let priceEstimates = []
 
-
-     return await new Promise((resolve, reject) => {
+       await new Promise((resolve, reject) => {
         pairContract.methods.price0CumulativeLast( ).call( {}  )
          .then(function(result){
-           console.log('price0CumulativeLast got ', result)
+           priceEstimates[0] = result
            resolve(result);
          })
          .catch(function(err){
@@ -203,6 +212,87 @@ var helper = {
            reject(err)
          })
        });
+
+       await new Promise((resolve, reject) => {
+        pairContract.methods.price1CumulativeLast( ).call( {}  )
+         .then(function(result){
+           priceEstimates[1] = result
+           resolve(result);
+         })
+         .catch(function(err){
+           console.error(err)
+           reject(err)
+         })
+       });
+
+       return priceEstimates
+
+  },
+
+  async getMarketPairReserves(pairContract){
+
+    let reserves = null
+
+       await new Promise((resolve, reject) => {
+        pairContract.methods.getReserves( ).call( {}  )
+         .then(function(result){
+           reserves = result
+           resolve(result);
+         })
+         .catch(function(err){
+           console.error(err)
+           reject(err)
+         })
+       });
+
+
+       return reserves
+
+  },
+
+
+
+    async getUniSwapEstimate(uniRouterContract, amountIn, reserveIn, reserveOut){
+
+      let amountOut = 0
+
+         await new Promise((resolve, reject) => {
+          uniRouterContract.methods.getAmountOut(amountIn, reserveIn, reserveOut).call( {}  )
+           .then(function(result){
+             amountOut = result
+             resolve(result);
+           })
+           .catch(function(err){
+             console.error(err)
+             reject(err)
+           })
+         });
+
+
+         return amountOut
+
+    },
+
+
+
+  async getTotalLPTokenSupply(pairContract){
+
+    let reserves = null
+
+       await new Promise((resolve, reject) => {
+        pairContract.methods.totalSupply( ).call( {}  )
+         .then(function(result){
+           reserves = result
+           resolve(result);
+         })
+         .catch(function(err){
+           console.error(err)
+           reject(err)
+         })
+       });
+
+
+       return reserves
 
   },
 
