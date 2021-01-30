@@ -43,7 +43,7 @@
             </div>
 
             <div class="p-4  w-full text-center  ">
-               Deposited (Est. ETH Value): {{  rawAmountToFormatted(currentBalances.eth, cryptoAssets.assets['ETH']['Decimals'])  }}
+               Deposited (Est. ETH Value): {{  rawAmountToFormatted(currentBalances.calcEthFromLP, cryptoAssets.assets['ETH']['Decimals'])  }}
             </div>
 
           </div>
@@ -55,7 +55,7 @@
 
               <input  type="text" v-model="zapInETHAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
 
-              <button v-on:click="zapInEth()"   class="bg-gray-900 text-sm text-purple-500 hover:text-purple-400 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2">
+              <button v-on:click="zapInEth()"   class="bg-gray-900 text-sm text-gray-800 hover:text-red-700  py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2" :class="{'text-purple-500 hover:text-purple-400': canZapInETH()  }">
                Deposit ETH
               </button>
 
@@ -108,7 +108,7 @@
             </div>
 
             <div class="p-4  w-full text-center  ">
-               Deposited (Est. 0xBTC Value): {{  rawAmountToFormatted(currentBalances.eth, cryptoAssets.assets['ETH']['Decimals'])  }}
+               Deposited (Est. 0xBTC Value): {{  rawAmountToFormatted(currentBalances.calcZxbtcFromLP, cryptoAssets.assets['0xBTC']['Decimals'])  }}
             </div>
 
           </div>
@@ -138,7 +138,7 @@
 
               <input  type="text" v-model="zapInZXBTCAmount" class="shadow appearance-none border rounded py-2 px-3 text-gray-300 bg-gray-900 leading-tight focus:outline-none focus:shadow-outline inline-block mx-4" size="16"/>
 
-              <button v-on:click="zapInToken"   class="bg-gray-900 text-sm text-gray-800  hover:text-red-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2" :class="{'text-purple-500 hover:text-purple-400': hasApprovalToZapInZXBTCTokens()  }">
+              <button v-on:click="zapInToken"   class="bg-gray-900 text-sm text-gray-800  hover:text-red-700 py-2 px-4 border border-blue-500 hover:border-transparent rounded w-full mt-2" :class="{'text-purple-500 hover:text-purple-400': canZapInZXBTCTokens()  }">
                Deposit 0xBTC
              </button>
 
@@ -215,7 +215,7 @@ export default {
 
       cryptoAssets: CryptoAssets,
 
-      currentBalances: {eth:0, zxbtc:0, lptoken:0 },
+      currentBalances: {eth:0, zxbtc:0, lptoken:0, calcEthFromLP:0, calcZxbtcFromLP:0  },
 
 
       zapInETHAmount: 0,
@@ -268,12 +268,28 @@ export default {
        this.zapOutLPTokensApproved= await Web3Helper.getTokensAllowance(lpTokenAddress,  this.activeAccountAddress, zapOutContractAddress)
        this.zapInZXBTCApproved=  await Web3Helper.getTokensAllowance(zcbtcTokenAddress,  this.activeAccountAddress, zapInContractAddress)
 
-
+       this.recalculateDepositedEthFromLPTokens()
+       this.recalculateDepositedZXBTCFromLPTokens()
     },
 
 
   async recalculateDepositedEthFromLPTokens(){
       // this.currentBalances.lpToken
+
+       let networkId = this.providerNetworkID
+
+         let contractData =  Web3Helper.getContractDataForNetworkID(networkId)
+         let uniswapPairContractAddress = contractData["0xbitcoinmarketpair"].address
+
+         let uniswapPairContract = await Web3Helper.getUniswapPairContract( window.web3, uniswapPairContractAddress )
+
+         console.log('meep12', uniswapPairContract)
+
+         let priceEstimate = await Web3Helper.getMarketPairPriceEstimate(uniswapPairContract, 0)
+
+         console.log("priceEstimate" , priceEstimate  )
+
+
   },
 
   async recalculateDepositedZXBTCFromLPTokens(){
@@ -369,6 +385,15 @@ export default {
     hasApprovalToZapOut(){
 
       return this.zapOutLPTokensApproved > 0
+    },
+
+
+    canZapInETH(){
+        return   this.zapInETHAmount > 0
+    },
+
+    canZapInZXBTCTokens(){
+        return this.hasApprovalToZapInZXBTCTokens() && this.zapInZXBTCAmount > 0
     },
 
     hasApprovalToZapInZXBTCTokens(){

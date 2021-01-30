@@ -2,6 +2,7 @@
 
 //https://docs.metamask.io/guide/ethereum-provider.html#using-the-provider
 const tokenContractABI = require('../contracts/ERC20ABI.json')
+const uniswapPairContractABI = require('../contracts/UniPairABI.json')
 const uniswapv2addabi = require('../contracts/uniswapv2add.json')
 const uniswapv2removeabi = require('../contracts/uniswapv2remove.json')
 
@@ -137,6 +138,14 @@ var helper = {
     return contract;
   },
 
+  async getUniswapPairContract(web3, contractAddress)
+  {
+
+    var pairContract = new web3.eth.Contract(uniswapPairContractABI,contractAddress)
+
+    return pairContract;
+  },
+
   async get0xSwapQuote(  buyToken , sellToken , sellAmount, networkId) {
     try {
       const TIMEOUT = 30000;
@@ -176,6 +185,25 @@ var helper = {
       console.log(JSON.stringify(err));
       throw err;
     }
+  },
+
+
+  async getMarketPairPriceEstimate(pairContract, pairId){
+
+
+
+     return await new Promise((resolve, reject) => {
+        pairContract.methods.price0CumulativeLast( ).call( {}  )
+         .then(function(result){
+           console.log('price0CumulativeLast got ', result)
+           resolve(result);
+         })
+         .catch(function(err){
+           console.error(err)
+           reject(err)
+         })
+       });
+
   },
 
 
