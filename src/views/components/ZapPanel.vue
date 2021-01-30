@@ -247,7 +247,7 @@ export default {
  async  mounted()
   {
 
-    setTimeout(this.refreshBalances, 6000);
+    setInterval(this.refreshBalances, 10*1000);
  /*
 
 
