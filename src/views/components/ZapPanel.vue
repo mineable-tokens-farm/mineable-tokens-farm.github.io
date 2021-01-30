@@ -44,8 +44,10 @@
 
             <div class="p-4  w-full text-center relative ">
 
-              <div class="absolute" style="right: 25px; top:-5px" v-if="currentBalances.calcEthFromLP > 0">
-                <YieldFarmingLabel />
+              <div class="absolute" style="right: 25px; top:-5px"  >
+                <YieldFarmingLabel
+                  v-bind:active="currentBalances.calcEthFromLP > 0"
+                  />
               </div>
 
                Deposited (Est. ETH Value): {{  rawAmountToFormatted(currentBalances.calcEthFromLP, cryptoAssets.assets['ETH']['Decimals'])  }}
@@ -114,8 +116,10 @@
 
             <div class="p-4  w-full text-center relative " >
 
-                <div class="absolute" style="right: 25px; top:-5px" v-if="currentBalances.calcZxbtcFromLP > 0">
-                <YieldFarmingLabel />
+                <div class="absolute" style="right: 25px; top:-5px" >
+                <YieldFarmingLabel
+                v-bind:active="currentBalances.calcZxbtcFromLP > 0"
+                />
               </div>
 
 
